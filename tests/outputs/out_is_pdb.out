@@ -1,0 +1,2 @@
+Wrong comand format
+Use grep "^# USAGE" -A 2 pdbx-draw-secondary to see correct format

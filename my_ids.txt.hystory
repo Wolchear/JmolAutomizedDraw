@@ -1,0 +1,2 @@
+touch my_ids.txt
+(cat assigned-PDB-ids.tsv | grep "^Nikita.*$" |  awk '{print $(NF-4), $(NF-3), $(NF-2), $(NF-1), $NF}') >> my_ids.txt

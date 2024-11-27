@@ -1,0 +1,164 @@
+#!/bin/bash
+
+# This script generates images in PNG or PNM format based on 
+# coordinates and the provided PDBx file
+# Also script has 2 not
+
+# USAGE ---------------------------------------------------\
+#   $0 -o subOptionFile select input.cif output.png   	   \
+#   $0 -r rotateFile select input.cif output.png   	   \      
+#----------------------------------------------------------\
+
+ROTATION_COMMAND=""
+SUB_COMMAND=""
+check_sub_command_regex='^(cartoon (only|on|off);|wireframe (only|on|off);|calculate hbonds;|zoom [0-9]+;|hbonds [0-9]+;|color (chain|cpk|structure);|trace (on|off);)+$'
+check_rotate_regex='^(rotateselected (x|y|z) (-?[0-9]+(\.?[0-9]+)?);)+$'
+check_select_regex='^((((([0-9]+-[0-9]+|\*)(:[A-Z]))|\*)(\.[A-Z]+)*)|helix|sheets)?( (and|or) (([0-9]+-[0-9]+(,[0-9]+-[0-9]+)*)|helix|sheets))*$'
+
+while [ -n "$1" ]
+do
+	case "$1" in
+		-o) SUB_COMMAND_FILE="$2"
+		if [[ ! -f $SUB_COMMAND_FILE ]]
+		then
+			echo "Value for the -o option must be written in a file" 1>&2
+			exit 1
+		fi
+		SUB_COMMAND=$(cat $SUB_COMMAND_FILE)
+		if [[ ! $SUB_COMMAND =~ $check_sub_command_regex ]]
+		then
+			echo "Wrong sub command fromat" 1>&2
+			echo "Use only cartoon, wireframe, calculate hbonds, zoom,"
+			echo "color (chain|cpk|structure) and hbond [0-9] commands"
+			exit 1
+		fi
+		shift
+		shift ;;
+		-r) ROTATION_COMMAND_FILE="$2"
+		
+		if [[ ! -f $ROTATION_COMMAND_FILE ]]
+		then
+			if [[  $ROTATION_COMMAND_FILE =~ $check_select_regex ]]
+				then
+					echo "Wrong argument for -r option" 1>&2
+					exit 1
+				else
+					echo "Value for the -r option must be written in a file" 1>&2
+					exit 1
+			fi
+		fi
+		
+		if [ "${ROTATION_COMMAND_FILE##*.}"  == "png" ]\
+		|| [ "${ROTATION_COMMAND_FILE##*.}" == "pnm" ]
+		then
+			echo "Wrong argument for -r option" 1>&2
+			exit 1
+		fi
+		
+		if  grep -q "^ATOM\|^HETATM" "$ROTATION_COMMAND_FILE"
+		then
+			echo "Wrong argument for -r option" 1>&2
+			exit 1
+		fi
+		
+		ROTATION_COMMAND=$(cat $ROTATION_COMMAND_FILE)
+		
+		if [[ ! $ROTATION_COMMAND =~ $check_rotate_regex ]]
+		then
+			echo "Wrong rotation command fromat" 1>&2
+			exit 1
+		fi
+		shift
+		shift ;;
+		
+		 *)
+		 break ;;
+	esac
+done
+
+SELECT="$1"
+INPUT_PDB="$2"
+OUTPUT_PNG="$3"
+
+if [ -z $3 ]
+then
+	echo "Missing arguments." 1>&2
+	echo 'Use grep "^# USAGE" -A 2 pdbx-draw-secondary to see correct format'
+	exit 1	
+fi
+
+if [ -f "${SELECT}" ]
+then
+	if  grep -q "^ATOM\|^HETATM" "$SELECT"
+	then
+		echo "Wrong comand format." 1>&2
+		echo 'Use grep "^# USAGE" -A 2 pdbx-draw-secondary to see correct format'
+		exit 1
+	fi
+fi
+
+if [ -f "${OUTPUT_PNG}" ]
+then
+	if  grep -q "^ATOM\|^HETATM" "$OUTPUT_PNG"
+	then
+		echo "Wrong comand format" 1>&2
+		echo 'Use grep "^# USAGE" -A 2 pdbx-draw-secondary to see correct format'
+		exit 1
+	fi
+fi
+
+if [  "${INPUT_PDB##*.}"  == "png" ] || [ "${INPUT_PDB##*.}" == "pnm" ]
+then
+	echo "Wrong comand format" 1>&2
+	echo 'Use grep "^# USAGE" -A 2 pdbx-draw-secondary to see correct format'
+	exit 1
+fi
+
+if [  "${SELECT##*.}"  == "png" ] || [ "${SELECT##*.}" == "pnm" ]
+then
+	echo "Wrong comand format" 1>&2
+	echo 'Use grep "^# USAGE" -A 2 pdbx-draw-secondary to see correct format'
+	exit 1
+fi
+
+if [ ! -f ${INPUT_PDB} ]
+then
+	echo "Wrong PDBx file path or file name" 1>&2
+	exit 1
+fi
+
+if [ ! -d $(dirname ${OUTPUT_PNG}) ]
+then
+	echo "Could not find output directory" 1>&2
+	exit 1
+fi
+
+if  ! grep -q "^ATOM\|^HETATM" "$INPUT_PDB"
+then
+	echo "Imput file is not in pdb format" 1>&2
+	exit 1
+fi
+
+if [ ! "${OUTPUT_PNG##*.}"  == "png" ] && [ ! "${OUTPUT_PNG##*.}" == "pnm" ]
+then
+	echo "Wrong output file format" 1>&2
+	exit 1
+fi
+
+
+if [[ ! $SELECT =~ $check_select_regex ]]
+then
+	echo "Wrong selection command argument fromat" 1>&2
+	exit 1
+fi
+
+
+jmol --nodisplay --script - <<EOF
+load "${INPUT_PDB}"
+select "${SELECT}"
+center selected
+$ROTATION_COMMAND
+$SUB_COMMAND
+display selected
+write image "${OUTPUT_PNG}"
+EOF

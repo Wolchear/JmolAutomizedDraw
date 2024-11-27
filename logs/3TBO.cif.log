@@ -1,0 +1,54 @@
++ directory-metadata
++ whoami
+wolchear
++ hostname -f
+Ubuntu.myguest.virtualbox.org
++ pwd
+/home/wolchear/Desktop/bioInfIII/assigment/working_copy/trunk
++ set +x
++ svnversion
+7M
++ svn info
+Path: .
+Working Copy Root Path: /home/wolchear/Desktop/bioInfIII/assigment/working_copy
+URL: file:///home/wolchear/Desktop/bioInfIII/assigment/jmol-draw/trunk
+Relative URL: ^/trunk
+Repository Root: file:///home/wolchear/Desktop/bioInfIII/assigment/jmol-draw
+Repository UUID: 046b6543-47d6-4d15-b0a7-79d277a4f6b6
+Revision: 7
+Node Kind: directory
+Schedule: normal
+Last Changed Author: wolchear
+Last Changed Rev: 7
+Last Changed Date: 2024-03-17 15:34:42 +0200 (Sun, 17 Mar 2024)
+
++ df -h .
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda3        40G   30G  7.9G  80% /
++ type osname
+osname: not found
++ uname -a
+Linux Ubuntu 6.5.0-25-generic #25~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Feb 20 16:09:15 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
++ date
+Tue 19 Mar 22:50:33 EET 2024
++ wget -O inputs/3TBO.cif http://www.rcsb.org/pdb/files/3TBO.cif
+URL transformed to HTTPS due to an HSTS policy
+--2024-03-19 22:50:33--  https://www.rcsb.org/pdb/files/3TBO.cif
+Resolving www.rcsb.org (www.rcsb.org)... 128.6.159.248
+Connecting to www.rcsb.org (www.rcsb.org)|128.6.159.248|:443... connected.
+HTTP request sent, awaiting response... 301 Moved Permanently
+Location: https://files.rcsb.org/download/3TBO.cif [following]
+--2024-03-19 22:50:33--  https://files.rcsb.org/download/3TBO.cif
+Resolving files.rcsb.org (files.rcsb.org)... 128.6.159.245
+Connecting to files.rcsb.org (files.rcsb.org)|128.6.159.245|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [application/octet-stream]
+Saving to: ‘inputs/3TBO.cif’
+
+     0K .......... .......... .......... .......... ..........  196K
+    50K .......... .......... .......... .                     35.1M=0.3s
+
+2024-03-19 22:50:34 (318 KB/s) - ‘inputs/3TBO.cif’ saved [83370]
+
++ date -Imin
+2024-03-19T22:50+02:00

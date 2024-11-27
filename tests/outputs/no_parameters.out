@@ -1,0 +1,2 @@
+Missing arguments.
+Use grep "^# USAGE" -A 2 pdbx-draw-secondary to see correct format
